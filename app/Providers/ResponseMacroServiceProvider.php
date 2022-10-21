@@ -51,6 +51,5 @@ class ResponseMacroServiceProvider extends ServiceProvider
             ], $code);
         });
 
-               
     }
 }
