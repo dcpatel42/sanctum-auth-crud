@@ -16,10 +16,11 @@ use App\Http\Controllers\Api\AuthController;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Route::post('/register', [AuthController::class, 'register']);
-    // Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/me', [AuthController::class, 'me']);
+    Route::post('/logout',[AuthController::class, 'logout']);
 });
  
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-// Route::post('/me', [AuthController::class, 'me']);
+Route::controller(AuthController::class)->group(function () {
+    Route::post('/register', 'register');
+    Route::post('/login', 'login');
+});

@@ -3,18 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
         if (!Auth::attempt($request->only('email', 'password'))) {
-            // response()->sendError()
             return response()->sendError(['message' => 'Invalid login details'], 401);
         }
 
@@ -26,22 +25,19 @@ class AuthController extends Controller
                                     'access_token' => $token,
                                     'token_type' => 'Bearer',
                                 ]);
+        
     }
 
-    public function register(Request $request)
+    public function register(UserRequest $request)
     {
-        $validatedData = Validator::make($request->all(),[
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
+        $validatedData = $request->validated();
 
         if($validatedData->fails()){
-            return response()->json([
+            return response()->sendError([
                 'status' => false,
                 'message' => 'validation error',
                 'errors' => $validatedData->errors()
-            ], 401);
+            ], 422);
         }
         
         $user = User::create([
@@ -63,4 +59,14 @@ class AuthController extends Controller
         return $request->user();
     }
 
+    public function logout(Request $request)
+    {
+        auth('sanctum')->user()->tokens()->delete();
+
+        return response()->success([
+                'status' => true,
+                'message' => 'Logout successfully!',
+            ], 200);
+
+    }
 }
