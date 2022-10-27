@@ -2,12 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Http\Requests\StoreCountryRequest;
 use App\Http\Requests\UpdateCountryRequest;
+use App\Http\Resources\CountryResource;
+use App\Repositories\CountryRepository;
 
 class CountryController extends Controller
 {
+     /** @var  CountryRepository */
+     private $countryRepository;
+
+     public function __construct(CountryRepository $countryRepo)
+     {
+        $this->countryRepository = $countryRepo;
+     }
+ 
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +26,11 @@ class CountryController extends Controller
      */
     public function index()
     {
-        //
+        $country = $this->countryRepository->all();
+        return response()->sendData([
+            'countries' => CountryResource::collection($country),
+        ]);
+
     }
 
     /**

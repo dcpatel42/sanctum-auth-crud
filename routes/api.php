@@ -3,7 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-
+use App\Http\Controllers\Api\CityController;
+use App\Http\Controllers\Api\CountryController;
+use App\Http\Controllers\Api\StateController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,12 +17,17 @@ use App\Http\Controllers\Api\AuthController;
 |
 */
 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/me', [AuthController::class, 'me']);
     Route::post('/logout',[AuthController::class, 'logout']);
+    Route::resource('/countries', CountryController::class);
+    Route::resource('/states', StateController::class);
+    Route::resource('/cities', CityController::class);
 });
  
 Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
 });
+
