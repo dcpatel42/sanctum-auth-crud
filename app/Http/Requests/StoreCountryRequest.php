@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 class StoreCountryRequest extends FormRequest
 {
     /**
@@ -13,7 +14,7 @@ class StoreCountryRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,15 @@ class StoreCountryRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            "country_name" => "required|string|max:255|unique:countries,country_name",
+            "status"       => "string|in:0,1",
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->sendError([
+            'data' => $validator->errors()
+        ],422));
     }
 }

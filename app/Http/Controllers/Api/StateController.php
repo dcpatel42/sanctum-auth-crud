@@ -6,9 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Models\State;
 use App\Http\Requests\StoreStateRequest;
 use App\Http\Requests\UpdateStateRequest;
+use App\Http\Resources\CountryResource;
+use App\Http\Resources\StateResource;
+use App\Models\Country;
+use App\Repositories\StateRepository;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class StateController extends Controller
 {
+    /** @var  StateRepository */
+    private $stateRepository;
+
+    public function __construct(StateRepository $stateRepo)
+    {
+        $this->stateRepository = $stateRepo;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +29,10 @@ class StateController extends Controller
      */
     public function index()
     {
-        //
+        $state = State::with('country')->orderBy('id','DESC')->get();
+        return response()->sendData(
+            StateResource::collection($state)
+        );
     }
 
     /**
@@ -25,8 +41,11 @@ class StateController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
-        //
+    { 
+        $countries = Country::orderBy('id','DESC')->get();
+        return response()->sendData([
+            'countries' => CountryResource::collection($countries),
+        ]);
     }
 
     /**
@@ -37,7 +56,11 @@ class StateController extends Controller
      */
     public function store(StoreStateRequest $request)
     {
-        //
+        $validatedData = $request->validated();
+               
+        $state = State::create($validatedData);
+        
+        return response()->sendResponse('State created successfully!',['state' => new StateResource($state)]);
     }
 
     /**
@@ -48,7 +71,11 @@ class StateController extends Controller
      */
     public function show(State $state)
     {
-        //
+        try{
+            return response()->sendResponse('State retrieved successfully!',['state' => new StateResource($state)]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -59,7 +86,7 @@ class StateController extends Controller
      */
     public function edit(State $state)
     {
-        //
+        return response()->sendResponse('State retrieved successfully!',['state' => new StateResource($state)]);
     }
 
     /**
@@ -71,7 +98,11 @@ class StateController extends Controller
      */
     public function update(UpdateStateRequest $request, State $state)
     {
-        //
+        $validatedData = $request->validated();
+       
+        $state = $state->update($validatedData);
+
+        return response()->sendResponse('State updated successfully!',['state' => $state]);
     }
 
     /**
@@ -82,6 +113,11 @@ class StateController extends Controller
      */
     public function destroy(State $state)
     {
-        //
+        try {
+            $state->delete($state->id);
+            return response()->sendResponse('State deleted successfully!');
+        } catch (Exception $e) {
+            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+        }
     }
 }

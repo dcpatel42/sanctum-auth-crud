@@ -24,7 +24,7 @@ class ResponseMacroServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Response::macro('success', function ($data, $message = 'Ok', $code = 200) {
+        Response::macro('success', function ($data = null, $message = 'Ok', $code = 200) {
             return response()->json([
                 'status' => true,
                 'message' => $message,
@@ -38,7 +38,7 @@ class ResponseMacroServiceProvider extends ServiceProvider
             ], $code);
         });
 
-        Response::macro('sendResponse', function ($message, $result) {
+        Response::macro('sendResponse', function ($message, $result = null) {
             return response()->json([
                 'message' => $message,
                 'result' => $result,
@@ -47,7 +47,7 @@ class ResponseMacroServiceProvider extends ServiceProvider
 
         Response::macro('sendError', function ($message, $code = 404) {
             return response()->json([
-                'message' => $message,
+                'error_message' => $message,
             ], $code);
         });
 

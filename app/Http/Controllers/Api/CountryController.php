@@ -11,13 +11,13 @@ use App\Repositories\CountryRepository;
 
 class CountryController extends Controller
 {
-     /** @var  CountryRepository */
-     private $countryRepository;
+    /** @var  CountryRepository */
+    private $countryRepository;
 
-     public function __construct(CountryRepository $countryRepo)
-     {
-        $this->countryRepository = $countryRepo;
-     }
+    public function __construct(CountryRepository $countryRepo)
+    {
+    $this->countryRepository = $countryRepo;
+    }
  
     /**
      * Display a listing of the resource.
@@ -26,11 +26,10 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $country = $this->countryRepository->all();
+        $countries = Country::orderBy('id','DESC')->get();
         return response()->sendData([
-            'countries' => CountryResource::collection($country),
+            'countries' => CountryResource::collection($countries),
         ]);
-
     }
 
     /**
@@ -51,7 +50,12 @@ class CountryController extends Controller
      */
     public function store(StoreCountryRequest $request)
     {
-        //
+        $validatedData = $request->validated();
+               
+        $country = $this->countryRepository->create($validatedData);
+        
+        return response()->sendResponse('Country created successfully!',['country' => new CountryResource($country)]);
+
     }
 
     /**
@@ -62,7 +66,7 @@ class CountryController extends Controller
      */
     public function show(Country $country)
     {
-        //
+        return response()->sendResponse('Country retrieved successfully!',['country' => new CountryResource($country)]);
     }
 
     /**
@@ -73,7 +77,7 @@ class CountryController extends Controller
      */
     public function edit(Country $country)
     {
-        //
+        return response()->sendResponse('Country retrieved successfully!',['country' => new CountryResource($country)]);
     }
 
     /**
@@ -85,7 +89,11 @@ class CountryController extends Controller
      */
     public function update(UpdateCountryRequest $request, Country $country)
     {
-        //
+        $validatedData = $request->validated();
+       
+        $country = $this->countryRepository->update($validatedData, $country->id);
+
+        return response()->sendResponse('Country updated successfully!',['country' => $country]);
     }
 
     /**
@@ -96,6 +104,8 @@ class CountryController extends Controller
      */
     public function destroy(Country $country)
     {
-        //
+        $this->countryRepository->delete($country->id);
+
+        return response()->sendResponse('Country deleted successfully!');
     }
 }

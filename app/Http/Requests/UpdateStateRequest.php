@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 class UpdateStateRequest extends FormRequest
 {
     /**
@@ -13,7 +14,7 @@ class UpdateStateRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,16 @@ class UpdateStateRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            "country_id" => "required|string|exists:countries,id,".$this->state->country_id,
+            "state_name" => "required|string|max:255|exist:states,state_name,".$this->state->state_name,
+            "status"       => "string|in:0,1",
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->sendError([
+            'data' => $validator->errors()
+        ],422));
     }
 }
