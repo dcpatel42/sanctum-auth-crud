@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\City;
 use App\Http\Requests\StoreCityRequest;
 use App\Http\Requests\UpdateCityRequest;
+use App\Http\Resources\CityResource;
+use App\Http\Resources\StateResource;
+use App\Models\State;
+use Exception;
 
 class CityController extends Controller
 {
@@ -16,7 +20,10 @@ class CityController extends Controller
      */
     public function index()
     {
-        //
+        $city = City::with('state')->orderBy('id','DESC')->get();
+        return response()->sendData(
+            CityResource::collection($city)
+        );
     }
 
     /**
@@ -26,7 +33,10 @@ class CityController extends Controller
      */
     public function create()
     {
-        //
+        $states = State::orderBy('id','DESC')->get();
+        return response()->sendData(
+            StateResource::collection($states)
+        );
     }
 
     /**
@@ -37,7 +47,7 @@ class CityController extends Controller
      */
     public function store(StoreCityRequest $request)
     {
-        //
+        
     }
 
     /**
@@ -48,7 +58,11 @@ class CityController extends Controller
      */
     public function show(City $city)
     {
-        //
+        try{
+            return response()->sendResponse('City retrieved successfully!',['state' => new CityResource($city)]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -59,7 +73,11 @@ class CityController extends Controller
      */
     public function edit(City $city)
     {
-        //
+        try{
+            return response()->sendResponse('City retrieved successfully!',['state' => new CityResource($city)]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -82,6 +100,11 @@ class CityController extends Controller
      */
     public function destroy(City $city)
     {
-        //
+        try {
+            $city->delete($city->id);
+            return response()->sendResponse('City deleted successfully!');
+        } catch (Exception $e) {
+            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+        }
     }
 }

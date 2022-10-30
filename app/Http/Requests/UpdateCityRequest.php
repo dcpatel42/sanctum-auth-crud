@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use Dotenv\Validator;
+use Illuminate\Contracts\Validation\Validator as ValidationValidator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateCityRequest extends FormRequest
 {
@@ -13,7 +16,7 @@ class UpdateCityRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,5 +29,12 @@ class UpdateCityRequest extends FormRequest
         return [
             //
         ];
+    }
+
+    public function failedValidation(ValidationValidator $validator)
+    {
+        throw new HttpResponseException(response()->sendError([
+            'data' => $validator->errors()
+        ],422));
     }
 }

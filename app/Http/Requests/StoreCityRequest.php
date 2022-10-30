@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 class StoreCityRequest extends FormRequest
 {
     /**
@@ -13,7 +14,7 @@ class StoreCityRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,5 +27,12 @@ class StoreCityRequest extends FormRequest
         return [
             //
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->sendError([
+            'data' => $validator->errors()
+        ],422));
     }
 }

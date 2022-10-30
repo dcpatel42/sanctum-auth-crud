@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -29,6 +30,16 @@ class State extends Model
     protected $dates = ['deleted_at'];
 
     /**
+     * Get all of the comments for the State
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cities()
+    {
+        return $this->hasMany(City::class,'state_id','id');
+    }
+    
+    /**
      * Get the user that owns the State
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -36,5 +47,15 @@ class State extends Model
     public function country()
     {
         return $this->belongsTo(Country::class);
+    }
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope(new ActiveScope);
     }
 }

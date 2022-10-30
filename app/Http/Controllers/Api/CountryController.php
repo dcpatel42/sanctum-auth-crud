@@ -7,6 +7,8 @@ use App\Models\Country;
 use App\Http\Requests\StoreCountryRequest;
 use App\Http\Requests\UpdateCountryRequest;
 use App\Http\Resources\CountryResource;
+use App\Models\City;
+use App\Models\State;
 use App\Repositories\CountryRepository;
 
 class CountryController extends Controller
@@ -104,8 +106,16 @@ class CountryController extends Controller
      */
     public function destroy(Country $country)
     {
-        $this->countryRepository->delete($country->id);
+        $country->load('states.cities');
 
-        return response()->sendResponse('Country deleted successfully!');
+        $states = $country->states;
+
+        $cities = $states->pluck('cities')->flatten();
+
+        City::whereIn('id', $cities->pluck('id'))->delete();
+        State::whereIn('id', $states->pluck('id'))->delete();
+        $country->delete();
+
+        return response()->sendResponse('Country deleted successfully!',null,204);
     }
 }

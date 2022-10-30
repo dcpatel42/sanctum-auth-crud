@@ -8,6 +8,7 @@ use App\Http\Requests\StoreStateRequest;
 use App\Http\Requests\UpdateStateRequest;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\StateResource;
+use App\Models\City;
 use App\Models\Country;
 use App\Repositories\StateRepository;
 use Exception;
@@ -114,6 +115,10 @@ class StateController extends Controller
     public function destroy(State $state)
     {
         try {
+            $state->load('cities');
+            $cities = $state->cities;
+            
+            City::whereIn('id', $cities->pluck('id'))->delete();
             $state->delete($state->id);
             return response()->sendResponse('State deleted successfully!');
         } catch (Exception $e) {
