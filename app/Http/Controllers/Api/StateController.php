@@ -12,7 +12,7 @@ use App\Models\City;
 use App\Models\Country;
 use App\Repositories\StateRepository;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 
 class StateController extends Controller
 {
@@ -28,12 +28,15 @@ class StateController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $state = State::with('country')->orderBy('id','DESC')->get();
-        return response()->sendData(
-            StateResource::collection($state)
-        );
+        $state = State::withoutGlobalScope(ActiveScope::class)
+                        ->searchState($request->all())
+                        ->get();
+
+        return response()->sendData([
+            'states' => StateResource::collection($state)
+        ]);
     }
 
     /**
@@ -75,7 +78,7 @@ class StateController extends Controller
         try{
             return response()->sendResponse('State retrieved successfully!',['state' => new StateResource($state)]);
         } catch (Exception $e) {
-            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+            return response()->sendError(['status' => 400, 'message' => $e->getMessage()]);
         }
     }
 
@@ -122,7 +125,7 @@ class StateController extends Controller
             $state->delete($state->id);
             return response()->sendResponse('State deleted successfully!');
         } catch (Exception $e) {
-            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+            return response()->sendError(['status' => 400, 'message' => $e->getMessage()]);
         }
     }
 }

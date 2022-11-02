@@ -58,4 +58,58 @@ class State extends Model
     {
         static::addGlobalScope(new ActiveScope);
     }
+
+    // get data with filter
+    public function scopeSearchState($query, $filters = [])
+    {
+        $state = $query;
+
+        if (isset($filters) && !empty($filters)) {
+            $state = $state->orderByColumn('id', "ASC");
+
+            if (isset($filters['state_name']) && $filters['state_name'] != '') {
+                // filter state_name data from state.
+                $state->where(function ($query) use ($filters) {
+                    $query->textSearch($filters['state_name']);
+                });
+            }
+            if (isset($filters['country_name']) && $filters['country_name'] != '') {
+                // filter country_name data from country.
+                $state->where(function ($query) use ($filters) {
+                    $query->countrySearch($filters['country_name']);
+                });
+            }
+
+            if (isset($filters['status']) && $filters['status'] != '') {
+                // filter status data from state.
+                $state->where(function ($query) use ($filters) {
+                    $query->Status($filters['status']);
+                });
+            }
+        }
+        return $state;
+    }
+    
+    public function ScopeTextSearch($query, $text)
+    {
+        return  $query->where('state_name', 'LIKE', "%{$text}%");
+    }
+
+    public function ScopeCountrySearch($query, $text)
+    {
+        return  $query->orWhereHas('country', function ($q) use ($text) {
+                    $q->where('countries.country_name', 'LIKE', "%{$text}%");
+                });
+    }
+   
+    public function scopeStatus($query,$status)
+    {
+        return $query->where('status', $status);
+    }
+
+    public function ScopeOrderByColumn($query, $sort_column, $sort_type)
+    {
+        return $query->orderBy($sort_column, $sort_type);
+    }
+
 }

@@ -10,6 +10,7 @@ use App\Http\Resources\CountryResource;
 use App\Models\City;
 use App\Models\State;
 use App\Repositories\CountryRepository;
+use Illuminate\Http\Request;
 
 class CountryController extends Controller
 {
@@ -18,7 +19,7 @@ class CountryController extends Controller
 
     public function __construct(CountryRepository $countryRepo)
     {
-    $this->countryRepository = $countryRepo;
+        $this->countryRepository = $countryRepo;
     }
  
     /**
@@ -26,9 +27,11 @@ class CountryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $countries = Country::orderBy('id','DESC')->get();
+        $countries = Country::withoutGlobalScope(ActiveScope::class)
+                            ->searchCountry($request->all())
+                            ->get();
         return response()->sendData([
             'countries' => CountryResource::collection($countries),
         ]);

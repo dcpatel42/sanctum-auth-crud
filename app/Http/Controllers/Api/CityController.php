@@ -10,6 +10,7 @@ use App\Http\Resources\CityResource;
 use App\Http\Resources\StateResource;
 use App\Models\State;
 use Exception;
+use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
@@ -18,12 +19,15 @@ class CityController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $city = City::with('state')->orderBy('id','DESC')->get();
-        return response()->sendData(
-            CityResource::collection($city)
-        );
+        $city = City::withoutGlobalScope(ActiveScope::class)
+                    ->searchCity($request->all())
+                    ->get();
+
+        return response()->sendData([
+           "cities" => CityResource::collection($city)
+        ]);
     }
 
     /**
@@ -61,7 +65,7 @@ class CityController extends Controller
         try{
             return response()->sendResponse('City retrieved successfully!',['state' => new CityResource($city)]);
         } catch (Exception $e) {
-            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+            return response()->sendError(['status' => 400, 'message' => $e->getMessage()]);
         }
     }
 
@@ -76,7 +80,7 @@ class CityController extends Controller
         try{
             return response()->sendResponse('City retrieved successfully!',['state' => new CityResource($city)]);
         } catch (Exception $e) {
-            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+            return response()->sendError(['status' => 400, 'message' => $e->getMessage()]);
         }
     }
 
@@ -104,7 +108,7 @@ class CityController extends Controller
             $city->delete($city->id);
             return response()->sendResponse('City deleted successfully!');
         } catch (Exception $e) {
-            return response()->json(['status' => 400, 'message' => $e->getMessage()]);
+            return response()->sendError(['status' => 400, 'message' => $e->getMessage()]);
         }
     }
 }

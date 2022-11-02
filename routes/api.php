@@ -19,9 +19,9 @@ use App\Http\Controllers\Api\StateController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/me', [AuthController::class, 'me']);
+    Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout',[AuthController::class, 'logout']);
-    Route::resource('/countries', CountryController::class);
+    Route::resource('/countries', CountryController::class,['except' => ['create']]);
     Route::resource('/states', StateController::class);
     Route::resource('/cities', CityController::class);
 });

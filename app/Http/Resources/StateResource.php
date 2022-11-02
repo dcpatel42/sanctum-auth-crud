@@ -21,7 +21,7 @@ class StateResource extends JsonResource
             'status'     => $this->status,
             // 'created_at' => $this->created_at->format('d-m-Y H:i:s'),
             // 'updated_at' => $this->updated_at->format('d-m-Y H:i:s'),
-            'country'    => new CountryResource($this->country),
+            'country'    => $this->country()->select('country_name')->get()
         ];
     }
 }
